@@ -1,0 +1,56 @@
+TABLEAU STEPS FOR VIZ
+
+Calculated Fields:
+
+(a)	For 1st Sheet (Total Profit)
+
+1.	CurrentYearIndicator	Year([Order Date]) = {FIXED:max(Year([Order Date]))}
+2.	PriorYearIndicator		Year([Order Date]) = {FIXED:max(Year([Order Date]))}-1
+3.	Profit-CY			        ifnull(if[CurrentYearIndicator] then [Profit] END,0)
+4.	Profit-PY		        	ifnull(if [PriorYearIndicator] then [Profit] END,0)
+5.	Profit Change	    		SUM([Profit-CY])- SUM([Profit-PY])
+6.	Profit Change%	    	(SUM([Profit-CY])-SUM([Profit-PY]))/SUM([Profit-PY])
+
+CurrentYearIndicator: This calculated field uses the FIXED function to identify the maximum year in the 'Order Date' field. It then checks if the 'Order Date' year matches the maximum year.
+PriorYearIndicator: This calculated field subtracts one from the maximum year identified in the 'CurrentYearIndicator' to return the prior year. It then checks if the 'Order Date' year matches the prior year.
+Profit-CY: This calculates the profit for the current year (CY) by checking the 'CurrentYearIndicator' and returning the 'Profit' value if true. Otherwise, it returns 0.
+Profit-PY: This calculates the profit for the prior year (PY) by checking the 'PriorYearIndicator' and returning the 'Profit' value if true. Otherwise, it returns 0.
+Profit Change: This subtracts the total profit for PY from the total profit for CY.
+Profit Change%: This calculates the percentage change in profit between CY and PY by dividing the profit change by the total profit for PY.
+
+
+(b)	For 2nd Sheet (Total Orders)
+
+1.	Order-PY			      ifnull(if [PriorYearIndicator] then [Order ID] END,'0')
+2.	Order-CY			      ifnull(if[CurrentYearIndicator] then [Order ID] END,'0')
+3.	Order Change	    	(COUNT([Order-CY])- COUNT([Order-PY ]))
+4.	Order Change%		    (COUNTD([Order-CY])-COUNTD([Order-PY ]))/COUNTD([Order-PY ])
+
+Order-PY: This calculates the order ID for the prior year (PY) by checking the 'PriorYearIndicator' and returning the 'Order ID' value if true. Otherwise, it returns '0'.
+Order-CY: This calculates the order ID for the current year (CY) by checking the 'CurrentYearIndicator' and returning the 'Order ID' value if true. Otherwise, it returns '0'.
+Order Change: This subtracts the total number of orders in PY from the total number of orders in CY.
+Order Change%: This calculates the percentage change in orders between CY and PY by dividing the number of order changes by the total number of orders in PY.
+
+
+(c)	For 3rd Sheet (Turnover)
+
+1.	Sales-CY			    ifnull(if[CurrentYearIndicator] then [Sales] END,0)
+2.	Profit Ratio	  	SUM([Profit-CY])/SUM([Sales-CY])
+3.	Sales-PY			    ifnull(if[PriorYearIndicator] then [Sales] END,0)
+
+Sales-CY: This calculates the sales for the current year (CY) by checking the 'CurrentYearIndicator' and returning the 'Sales' value if true. Otherwise, it returns 0.
+Profit Ratio: This divides the total profit for CY by the total sales for CY to arrive at the profit ratio.
+Sales-PY: This calculates the sales for the prior year (PY) by checking the 'PriorYearIndicator' and returning the 'Sales' value if true. Otherwise, it returns 0.
+
+
+(d)	For Total Sales
+
+1.	Sales-Change%		(SUM([Sales-CY])-SUM([Sales-PY]))/SUM([Sales-PY])
+
+Sales-Change%: This calculates the percentage change in sales between CY and PY by dividing the difference in total sales between CY and PY by the total sales for PY.
+
+
+For symbols, copy + paste the following in Custom bar of Number Format:
+▲ #,###,0.0%; ▼ -#,###,0.0%
+
+"$" #,###,0.00; ●("$" -#,###,0.00)
